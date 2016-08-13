@@ -2,10 +2,27 @@ var path    = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 module.exports = {
-  devtool: 'sourcemap',
+  devtool: NODE_ENV === 'development' ? '#cheap-module-source-map' : null,
   entry: {},
+
+  resolve: {
+    modulesDirectories: ['node_modules'],
+    extensions: ['', '.js']
+  },
+
+  resolveLoader: {
+    modulesDirectories: ['node_modules'],
+    moduleTemplate: ['*-loader', '*'],
+    extensions: ['', '.js']
+  },
+
   module: {
+    noParse: [
+      /angular\/angular.js/
+    ],
     loaders: [
        { test: /\.js$/, exclude: [/app\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
        { test: /\.html$/, loader: 'raw' },

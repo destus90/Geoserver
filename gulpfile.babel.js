@@ -16,6 +16,7 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import colorsSupported      from 'supports-color';
 import historyApiFallback   from 'connect-history-api-fallback';
+import nodemon              from 'gulp-nodemon';
 
 let root = 'client';
 
@@ -37,7 +38,7 @@ let paths = {
     path.join(root, 'index.html')
   ],
   entry: [
-    'babel-polyfill',
+    // 'babel-polyfill',
     path.join(__dirname, root, 'app/app.js')
   ],
   output: root,
@@ -65,7 +66,24 @@ gulp.task('webpack', ['clean'], (cb) => {
   });
 });
 
-gulp.task('serve', () => {
+gulp.task('nodemon', function (cb) {
+
+  var started = false;
+
+  return nodemon({
+    script: 'app.js',
+    ignore: [root]
+  }).on('start', function () {
+    // to avoid nodemon being started multiple times
+    // thanks @matthisk
+    if (!started) {
+      cb();
+      started = true;
+    }
+  });
+});
+
+gulp.task('serve', ['nodemon'], () => {
   const config = require('./webpack.dev.config');
   config.entry.app = [
     // this modules required to make HRM working
@@ -79,7 +97,7 @@ gulp.task('serve', () => {
   serve({
     port: process.env.PORT || 3000,
     open: false,
-    server: {baseDir: root},
+    proxy: "localhost:8080",
     middleware: [
       historyApiFallback(),
       webpackDevMiddleware(compiler, {
@@ -87,6 +105,10 @@ gulp.task('serve', () => {
           colors: colorsSupported,
           chunks: false,
           modules: false
+        },
+        watchOptions: {
+          aggregateTimeout: 100,
+          poll: true
         },
         publicPath: config.output.publicPath
       }),
