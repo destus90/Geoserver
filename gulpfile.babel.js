@@ -66,24 +66,7 @@ gulp.task('webpack', ['clean'], (cb) => {
   });
 });
 
-gulp.task('nodemon', function (cb) {
-
-  var started = false;
-
-  return nodemon({
-    script: 'app.js',
-    ignore: [root]
-  }).on('start', function () {
-    // to avoid nodemon being started multiple times
-    // thanks @matthisk
-    if (!started) {
-      cb();
-      started = true;
-    }
-  });
-});
-
-gulp.task('serve', ['nodemon'], () => {
+gulp.task('serve', () => {
   const config = require('./webpack.dev.config');
   config.entry.app = [
     // this modules required to make HRM working
@@ -97,7 +80,7 @@ gulp.task('serve', ['nodemon'], () => {
   serve({
     port: process.env.PORT || 3000,
     open: false,
-    proxy: "localhost:8080",
+    server: {baseDir: root},
     middleware: [
       historyApiFallback(),
       webpackDevMiddleware(compiler, {

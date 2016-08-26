@@ -1,14 +1,13 @@
 import angular from 'angular';
-import Navbar from './navbar/navbar';
-import Hero from './hero/hero';
-import User from './user/user';
+import "./common.styl";
+import control from "./control/control";
+import geoserver from "./geoserver/geoserver";
 
 let commonModule = angular.module('app.common', [
-  Navbar,
-  Hero,
-  User
+  control,
+  geoserver
 ])
-  
+
 .name;
 
 export default commonModule;
