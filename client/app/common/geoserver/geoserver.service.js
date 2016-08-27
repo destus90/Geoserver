@@ -29,20 +29,30 @@ class GeoServer{
         NAME_PROF: 'Номер профиля',
         NAME_REGPR: 'Номер регионального профиля'
       }
+    };
 
+    this.aliasLayerName = {
+      "GEO_SHP_LICENSES": "Лицензионные участки",
+      "GEO_SHP_FIELD": "Месторождения углеводородов",
+      "GEO_SHP_SEISPROF": "Региональные сейсморазведочные профили"
     }
+
   }
 
   getServices(){
-    return ["	tis:GEO_SHP_LICENSES", "tis:GEO_SHP_FIELD", "tis:GEO_SHP_SEISPROF"]
+    return ["GEO_SHP_LICENSES", "GEO_SHP_FIELD", "GEO_SHP_SEISPROF"]
   }
 
   getBadAttrField(){
-    return ["GUID", "NSI_ID", "SHAPE_AREA", "SHAPE_LEN", "OBJECTID"]
+    return ["GUID", "NSI_ID", "SHAPE_AREA", "SHAPE_LEN", "OBJECTID", "id"]
   }
 
   getAliasByAttrField(layer, attrField){
     return this.aliasAttrField[layer][attrField];
+  }
+
+  getAliasByLayerName(layer){
+    return this.aliasLayerName[layer];
   }
 
 

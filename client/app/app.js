@@ -6,7 +6,6 @@ import AppComponent from './app.component';
 import 'normalize.css';
 import 'leaflet';
 // import './leafletwms.plugin';
-
 angular.module('app', [
     uiRouter,
     Common,

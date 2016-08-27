@@ -1,11 +1,14 @@
 class MapController {
-  constructor($compile, $scope, Geoserver) {
+  constructor($compile, $scope, $http, Geoserver) {
     "ngInject";
     this.$compile = $compile;
     this.$scope = $scope;
+    this.$http = $http;
     this.Geoserver = Geoserver;
 
     this.layers = {};
+    this.geoJsonObjectLayer = null;
+    this.attributesModal = null;
 
     angular.forEach(this.Geoserver.getServices(), service => this.layers[service] = false);
 
@@ -56,15 +59,27 @@ class MapController {
         var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
           size = this._map.getSize(),
 
+        // this crs is used to show layer added to map
+          crs = this.options.crs || this._map.options.crs,
+
+        // these are the SouthWest and NorthEast points
+        // projected from LatLng into used crs
+          sw = crs.project(this._map.getBounds().getSouthWest()),
+          ne = crs.project(this._map.getBounds().getNorthEast()),
+
           params = {
             request: 'GetFeatureInfo',
             service: 'WMS',
-            srs: 'EPSG:4326',
+
+            // this is the code of used crs
+            srs: crs.code,
             styles: this.wmsParams.styles,
             transparent: this.wmsParams.transparent,
             version: this.wmsParams.version,
             format: this.wmsParams.format,
-            bbox: this._map.getBounds().toBBoxString(),
+
+            // these are bbox defined by SouthWest and NorthEast coords
+            bbox: sw.x + ',' + sw.y + ',' + ne.x + ',' + ne.y,
             height: size.y,
             width: size.x,
             layers: this.wmsParams.layers,
@@ -72,6 +87,7 @@ class MapController {
             info_format: 'application/json',
             feature_count: 999
           };
+
 
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
         params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
@@ -92,7 +108,7 @@ class MapController {
       return new L.TileLayer.BetterWMS(url, options);
     };
 
-    let wms = L.tileLayer.betterWms("http://192.168.0.108:8082/geoserver/tis/wms", {
+    let wms = L.tileLayer.betterWms("http://95.167.215.210:8082/geoserver/tis/wms", {
       // layers: 'nedra:licenses,nedra:mestor',
       format: 'image/png',
       transparent: true,
@@ -112,30 +128,50 @@ class MapController {
 
     this.wms.setParams({
       layers: visibleLayers.join(",")
-    }, false)
+    }, false);
+
   }
 
   parseFeatureInfo(features){
-    let attributes = {},
-        listOfBadAttrKey = this.Geoserver.getBadAttrField();
+    let attributes = {};
 
     angular.forEach(features, feature => {
       let dotSymbolPos = feature.id.indexOf("."),
-          layerName = feature.id.substring(0, dotSymbolPos),
-          goodFeature = {};
-      
+          layerName = feature.id.substring(0, dotSymbolPos);
+
       (!attributes[layerName]) && (attributes[layerName] = []);
-      angular.forEach(feature.properties, (attrVal, attrKey) => {
-        (!~listOfBadAttrKey.indexOf(attrKey)) && (goodFeature[attrKey] = attrVal)
-      });
-      attributes[layerName].push(goodFeature);
+
+      feature.properties.id = feature.id;
+      attributes[layerName].push(feature.properties);
 
     });
     this.$scope.$apply(() => this.openModal("attributes", attributes))
   }
 
   objectClick(objectAttributes){
-    console.log(objectAttributes);
+
+    if (!!this.geoJsonObjectLayer){
+      this.map.removeLayer(this.geoJsonObjectLayer);
+    }
+    this.$http({
+      url: "http://95.167.215.210:8082/geoserver/tis/wfs",
+      params: {
+        service: "wfs",
+        version: "1.1.0",
+        request: "GetFeature",
+        featureID: objectAttributes.id,
+        outputFormat: "application/json",
+        srsName: 'EPSG:4326'
+      }
+    }).then(
+      response => {
+        this.geoJsonObjectLayer = L.geoJson(response.data, {
+          style: {
+            color: "black"
+          }
+        }).addTo(this.map);
+      }
+    );
   }
 
   openModal(type, attributes){
@@ -149,7 +185,7 @@ class MapController {
            <table>
               <tr ng-repeat="service in services track by $index">
                 <td><input ng-model="layers[service]" ng-click="showLayers()" type="checkbox" /></td>
-                <td>{{service}}</td>
+                <td>{{getAliasByLayerName(service)}}</td>
               </tr>
            </table>
           `,
@@ -159,6 +195,7 @@ class MapController {
       newScope.services = geoserverLayers;
       newScope.showLayers = this.showLayers.bind(this);
       newScope.layers = this.layers;
+      newScope.getAliasByLayerName = this.Geoserver.getAliasByLayerName.bind(this.Geoserver);
 
       win =  L.control.window(this.map,{title:'Сервис', content: linkFunction(newScope)[0]})
         .showOn([140, 20])
@@ -174,10 +211,9 @@ class MapController {
       win =  L.control.window(this.map,{title:'Легенда', content: linkFunction(newScope)[0]})
         .showOn([140, 40])
     } else if (type === 'attributes'){
-      console.log("1111");
       let html = `
             <uib-tabset active="activePill" vertical="true" type="pills">
-              <uib-tab index="$index" heading="{{layerName}}" ng-repeat="(layerName, layerAttributes) in attributes track by layerName">
+              <uib-tab index="$index" heading="{{getAliasByLayerName(layerName)}}" ng-repeat="(layerName, layerAttributes) in attributes track by layerName">
                 <table class="table table-bordered table-hover">
                     <thead>
                       <tr>
@@ -189,12 +225,14 @@ class MapController {
                       <!--<th>Дата окончания действия лицензии</th>                   <th>Дата переоформления лицензии</th>-->
                       <!--<th>Номер лицензионного участка на карте</th>                   <th>Cтатус лицензии</th>-->
                       <!--<th>Вертикально интегрированная компания</th>               -->
-                        <th ng-repeat="(attrKey, attrVal) in layerAttributes[0] track by $index">{{getAliasByAttrField(layerName, attrKey)}}</th>
+                        <th ng-show="badAttrField.indexOf(attrKey) === -1" ng-repeat="(attrKey, attrVal) in layerAttributes[0] track by $index">
+                          {{getAliasByAttrField(layerName, attrKey)}}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr ng-click="objectClick(objectAttributes)" ng-repeat="objectAttributes in layerAttributes track by $index">
-                        <td ng-repeat="(attrKey, attrVal) in objectAttributes track by $index">
+                        <td ng-show="badAttrField.indexOf(attrKey) === -1" ng-repeat="(attrKey, attrVal) in objectAttributes track by $index">
                           <!--{{ attrKey === 'LIC_BEGIN' ? (attrVal | date:'dd.MM.yyyy') : attrVal}}-->
                           {{ ( attrKey === 'LIC_BEGIN' || (attrKey === 'LIC_END') ) ? (attrVal | date:'dd.MM.yyyy') : attrVal}}
                         </td>
@@ -210,15 +248,28 @@ class MapController {
       newScope.attributes = attributes;
       newScope.getAliasByAttrField = this.Geoserver.getAliasByAttrField.bind(this.Geoserver);
       newScope.objectClick = this.objectClick.bind(this);
+      newScope.badAttrField = this.Geoserver.getBadAttrField();
+      newScope.getAliasByLayerName = this.Geoserver.getAliasByLayerName.bind(this.Geoserver);
+
       console.log(attributes);
 
-      win =  L.control.window(this.map,{
-        title:'Атрибутика',
-        content: linkFunction(newScope)[0],
-        position: "left",
-        maxWidth: '100%'
-      })
-        .show();
+      if (!this.attributesModal){
+        this.attributesModal =  L.control.window(this.map,{
+          title:'Атрибутика',
+          content: linkFunction(newScope)[0],
+          position: "left",
+          maxWidth: '600'
+        })
+          .show();
+
+        let ctrl = this;
+        this.attributesModal.on('hide', function (e) {
+          ctrl.attributesModal.off('hide');
+          ctrl.attributesModal = null;
+        });
+      } else {
+        this.attributesModal.content(linkFunction(newScope)[0]);
+      }
     }
   }
 
