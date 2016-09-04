@@ -5,7 +5,8 @@ import './control.styl';
 let controlComponent = {
   restrict: 'E',
   bindings: {
-    openModal: "&"
+    openModal: "&",
+    openServiceWin: "&"
   },
   template,
   controller

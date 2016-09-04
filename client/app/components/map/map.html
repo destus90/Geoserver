@@ -1,2 +1,25 @@
 <div id="map"></div>
-<control open-modal="$ctrl.openModal(type)"></control>
+<control open-service-win="$ctrl.openServiceWin()" open-modal="$ctrl.openModal(type)"></control>
+
+<div kendo-window="$ctrl.winService" k-title="'Список сервисов'"
+     k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']">
+
+  <div class="k-content">
+    <div kendo-tree-view="$ctrl.tree"
+         k-checkboxes="{'checkChildren': true}"
+         k-data-source="$ctrl.treeDataForServiceWin"
+         k-on-check="$ctrl.onCheckService()">
+
+    </div>
+  </div>
+</div>
+
+<div kendo-window="$ctrl.winAttribute" k-title="'Атрибутика'" k-ng-delay="$ctrl.tabStripForAttributeWin"
+     k-width="800" k-height="280" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']"
+     k-on-open="$ctrl.winAttributeVisible = true" k-on-close="$ctrl.winAttributeVisible = false">
+  <div class="k-content">
+    <div kendo-tab-strip="$ctrl.tabStripForAttributeWin" k-data-source="$ctrl.tabStripDataSourceForAttributeWin"
+         k-data-text-field="'text'" k-data-content-field="'content'">
+    </div>
+  </div>
+</div>

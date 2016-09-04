@@ -1,6 +1,10 @@
 class GeoServer{
 
-  constructor(){
+  constructor($http){
+    "ngInject";
+
+    this.$http = $http;
+
     this.aliasAttrField = {
       'GEO_SHP_LICENSES': {
         LIC_VID: 'Вид лицензии',
@@ -31,6 +35,7 @@ class GeoServer{
       }
     };
 
+
     this.aliasLayerName = {
       "GEO_SHP_LICENSES": "Лицензионные участки",
       "GEO_SHP_FIELD": "Месторождения углеводородов",
@@ -53,6 +58,20 @@ class GeoServer{
 
   getAliasByLayerName(layer){
     return this.aliasLayerName[layer];
+  }
+
+  getFeature(featureID){
+    return this.$http({
+      url: "http://95.167.215.210:8082/geoserver/tis/wfs",
+      params: {
+        service: "wfs",
+        version: "1.1.0",
+        request: "GetFeature",
+        featureID: featureID,
+        outputFormat: "application/json",
+        srsName: 'EPSG:4326'
+      }
+    })
   }
 
 

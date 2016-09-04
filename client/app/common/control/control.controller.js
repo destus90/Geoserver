@@ -4,7 +4,8 @@ class ControlController {
   }
 
   showModal(type){
-    this.openModal({type})
+    // this.openModal({type})
+    type === 'service' ? this.openServiceWin() : null;
   }
 }
 

@@ -1,0 +1,6 @@
+<table>
+  <tr ng-repeat="(serviceName, serviceVisible) in services track by $index">
+    <td><input ng-model="services[serviceName]" ng-click="showLayers()" type="checkbox" /></td>
+    <td>{{getAliasByLayerName(serviceName)}}</td>
+  </tr>
+</table>

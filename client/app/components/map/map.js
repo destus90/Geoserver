@@ -1,13 +1,13 @@
 import angular from 'angular';
 import uiRouter from 'angular-ui-router';
+import "imports?angular!kendo/js/kendo.all.min";
 import mapComponent from './map.component';
 import "leaflet";
 import "leaflet-control-window";
-import bootstrapTabs from "angular-ui-bootstrap/src/tabs";
 
 let mapModule = angular.module('map', [
   uiRouter,
-  bootstrapTabs
+  "kendo.directives"
 ])
 
 .config(($stateProvider) => {

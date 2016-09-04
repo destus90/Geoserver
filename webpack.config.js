@@ -9,7 +9,7 @@ module.exports = {
   entry: {},
 
   resolve: {
-    modulesDirectories: ['node_modules'],
+    modulesDirectories: ['node_modules', __dirname + '/client/vendor'],
     extensions: ['', '.js']
   },
 
@@ -21,10 +21,11 @@ module.exports = {
 
   module: {
     noParse: [
-      /angular\/angular.js/
+      /angular\/angular.js/,
+      /kendo\/js\/kendo.all.min.js/
     ],
     loaders: [
-      { test: /\.js$/, exclude: [/app\/lib/, /node_modules/], loader: 'ng-annotate!babel' },
+      { test: /\.js$/, exclude: [/app\/lib/, /vendor/, /node_modules/], loader: 'ng-annotate!babel' },
        { test: /\.html$/, loader: 'raw' },
        { test: /\.styl$/, loader: 'style!css!stylus' },
        { test: /\.css$/, loader: 'style!css' },

@@ -1,3 +1,5 @@
+let ctrl;
+
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
   onAdd: function (map) {
@@ -35,15 +37,27 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
       size = this._map.getSize(),
 
+    // this crs is used to show layer added to map
+      crs = this.options.crs || this._map.options.crs,
+
+    // these are the SouthWest and NorthEast points
+    // projected from LatLng into used crs
+      sw = crs.project(this._map.getBounds().getSouthWest()),
+      ne = crs.project(this._map.getBounds().getNorthEast()),
+
       params = {
         request: 'GetFeatureInfo',
         service: 'WMS',
-        srs: 'EPSG:4326',
+
+        // this is the code of used crs
+        srs: crs.code,
         styles: this.wmsParams.styles,
         transparent: this.wmsParams.transparent,
         version: this.wmsParams.version,
         format: this.wmsParams.format,
-        bbox: this._map.getBounds().toBBoxString(),
+
+        // these are bbox defined by SouthWest and NorthEast coords
+        bbox: sw.x + ',' + sw.y + ',' + ne.x + ',' + ne.y,
         height: size.y,
         width: size.x,
         layers: this.wmsParams.layers,
@@ -61,12 +75,13 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
   showGetFeatureInfo: function (err, latlng, content) {
     if (err) { console.log(err); return; } // do nothing if there's an error
 
-    window.parseFeatureInfo(content.features);
+    ctrl.parseFeatureInfo(content.features);
 
   }
 
 });
 
-L.tileLayer.betterWms = function (url, options) {
+L.tileLayer.betterWms = function (mapCtrl, url, options) {
+  ctrl = mapCtrl;
   return new L.TileLayer.BetterWMS(url, options);
 };

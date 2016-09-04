@@ -1,0 +1,63 @@
+<div class="k-content">
+  <div kendo-tab-strip="tabStrip" k-data-source="tabStripDataSource" k-data-text-field="'text'" k-data-content-field="'content'">
+  </div>
+</div>
+<!--<div class="k-content">-->
+  <!--<div kendo-tab-strip="tabStrip" k-data-source="tabStripDataSource" k-data-text-field="'text'" k-data-content-field="'content'">-->
+  <!--</div>-->
+<!--</div>-->
+
+     <!--tab list -->
+    <!--<ul>-->
+      <!--<li class="k-state-active">First Tab</li>-->
+      <!--<li>Second tab</li>-->
+    <!--</ul>-->
+
+    <!--<div style="padding: 1em" ng-repeat="grid in grids track by $index">-->
+      <!--<kendo-grid options="grid">-->
+      <!--<div>-->
+      <!--</div>-->
+      <!--</kendo-grid>-->
+    <!--</div>-->
+
+<!--<uib-tabset active="activePill" vertical="true" type="pills">-->
+  <!--<uib-tab index="$index" heading="{{getAliasByLayerName(layerName)}}" ng-repeat="(layerName, layerAttributes) in attributes track by layerName">-->
+      <!--&lt;!&ndash;<table>&ndash;&gt;-->
+        <!--&lt;!&ndash;<colgroup>&ndash;&gt;-->
+          <!--&lt;!&ndash;<col ng-show="badAttrField.indexOf(attrKey) === -1" ng-repeat="(attrKey, attrVal) in layerAttributes[0] track by $index" width="100px">&ndash;&gt;-->
+        <!--&lt;!&ndash;</colgroup>&ndash;&gt;-->
+        <!--&lt;!&ndash;<thead>&ndash;&gt;-->
+        <!--&lt;!&ndash;<tr>&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Вид лицензии</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Полный номер лицензии</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Название лицензионного участка</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Компания-владелец</th>                   <th>Целевое назначение лицензии</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Площадь лицензионного участка в км2</th>                   <th>Дата начала действия лицензии</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Дата окончания действия лицензии</th>                   <th>Дата переоформления лицензии</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Номер лицензионного участка на карте</th>                   <th>Cтатус лицензии</th>&ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;&lt;!&ndash;<th>Вертикально интегрированная компания</th>               &ndash;&gt;&ndash;&gt;-->
+          <!--&lt;!&ndash;<th data-field="{{attrKey}}" ng-show="badAttrField.indexOf(attrKey) === -1" ng-repeat="(attrKey, attrVal) in layerAttributes[0] track by $index">&ndash;&gt;-->
+            <!--&lt;!&ndash;{{getAliasByAttrField(layerName, attrKey)}}&ndash;&gt;-->
+          <!--&lt;!&ndash;</th>&ndash;&gt;-->
+        <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+        <!--&lt;!&ndash;</thead>&ndash;&gt;-->
+        <!--&lt;!&ndash;<tbody>&ndash;&gt;-->
+        <!--&lt;!&ndash;<tr ng-click="objectClick(objectAttributes)" ng-repeat="objectAttributes in layerAttributes track by $index">&ndash;&gt;-->
+          <!--&lt;!&ndash;<td ng-show="badAttrField.indexOf(attrKey) === -1" ng-repeat="(attrKey, attrVal) in objectAttributes track by $index">&ndash;&gt;-->
+            <!--&lt;!&ndash;&lt;!&ndash;{{ attrKey === 'LIC_BEGIN' ? (attrVal | date:'dd.MM.yyyy') : attrVal}}&ndash;&gt;&ndash;&gt;-->
+            <!--&lt;!&ndash;{{ ( attrKey === 'LIC_BEGIN' || (attrKey === 'LIC_END') ) ? (attrVal | date:'dd.MM.yyyy') : attrVal}}&ndash;&gt;-->
+          <!--&lt;!&ndash;</td>&ndash;&gt;-->
+        <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+        <!--&lt;!&ndash;</tbody>&ndash;&gt;-->
+      <!--&lt;!&ndash;</table>&ndash;&gt;-->
+
+
+    <!--<kendo-grid options="mainGridOptions">-->
+      <!--<div k-detail-template>-->
+        <!--<p>{{dataItem.LastName}}</p>-->
+      <!--</div>-->
+    <!--</kendo-grid>-->
+  <!--</uib-tab>-->
+<!--</uib-tabset>-->
+
+
