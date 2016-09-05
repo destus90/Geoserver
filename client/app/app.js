@@ -4,13 +4,13 @@ import Common from './common/common';
 import Components from './components/components';
 import AppComponent from './app.component';
 import 'normalize.css';
-import 'leaflet';
-// import './leafletwms.plugin';
+import "imports?angular!kendo/js/kendo.all.min";
 
 angular.module('app', [
     uiRouter,
     Common,
-    Components
+    Components,
+    "kendo.directives"
   ])
   .config(($locationProvider) => {
     "ngInject";

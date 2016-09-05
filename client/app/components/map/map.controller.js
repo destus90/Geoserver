@@ -33,84 +33,48 @@ class MapController {
     this.wms = [];
     this.gridOptions = [];
 
-    this.map.on('click', e => {
-      let services = [];
-      angular.forEach(this.indexOfVisibleWMS, index => services.push(this.services[index]));
-      this.MapHelperService.getFeatureInfo(e.latlng, this.map, services).then(
-        response => {
-          let attributes = this.MapHelperService.parseFeatureInfo(response.data.features);
-          let ds = [];
-          let badAttrField = this.Geoserver.getBadAttrField();
-          angular.forEach(attributes, (arrayOfObject, layerName) => {
-            let gridOptions = {
-              sortable: true,
-              columns: [],
-              dataSource: {
-                data: []
-              },
-              selectable: "row"
-            };
-
-            if (gridOptions.columns.length === 0){
-              angular.forEach(arrayOfObject[0], (attrVal, attrKey) => {
-                if (!~badAttrField.indexOf(attrKey)){
-                  if (attrKey === 'LIC_BEGIN' || attrKey === 'LIC_END'){
-                    gridOptions.columns.push({
-                      field: attrKey,
-                      title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
-                      width: 200,
-                      format: "{0: dd.MM.yyyy}"
-                    })
-                  } else
-                  gridOptions.columns.push({
-                    field: attrKey,
-                    title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
-                    width: 200
-                  })
-                }
-              })
-            }
-
-            angular.forEach(arrayOfObject, object => {
-              object['LIC_END'] = new Date(object['LIC_END']);
-              object['LIC_BEGIN'] = new Date(object['LIC_BEGIN']);
-              gridOptions.dataSource.data.push(object);
-            });
-
-            this.gridOptions.push(gridOptions);
-
-            let index = this.gridOptions.indexOf(gridOptions);
-
-
-            ds.push({
-              text: this.Geoserver.getAliasByLayerName(layerName),
-              content: `
-                        <div style="padding: 1em">
-                          <kendo-grid options="$ctrl.gridOptions[${index}]" k-on-change="handleChange(data)">
-                            <div></div>
-                          </kendo-grid>
-                        </div>
-              `
-            })
-          });
-
-          this.tabStripDataSourceForAttributeWin = ds;
-          this.winAttribute.open();
-        },
-        error => {
-          console.log(error);
-        }
-      )
-    })
-
+    this.map.on('click', this.handlerForMapClick.bind(this))
+    
   }
 
   $onDestroy(){
     this.map.off("click");
   }
 
+  handlerForMapClick(e){
+    let services = [];
+    this.clearMap();
+    angular.forEach(this.indexOfVisibleWMS, index => services.push(this.services[index]));
+    this.MapHelperService.getFeatureInfo(e.latlng, this.map, services).then(
+      response => this.openAttributeWin(response.data.features),
+      error => console.log(error)
+    )
+  }
+
+  clearMap(){
+    !!this.geoJsonObjectLayer && this.map.removeLayer(this.geoJsonObjectLayer)
+  }
+
   set winAttributeVisible(val){
-    this.$timeout(() => this.tabStripForAttributeWin.select(0))
+    this.$timeout(() => this.tabStripForAttributeWin.select(0));
+    if (val === false){
+      this.clearMap();
+    }
+  }
+
+  handlerForObjectClick(object){
+    if (!!object){
+      this.Geoserver.getFeature(object.id).then(
+        response => this.highlightObject(response.data),
+        error => console.log(error)
+      )
+    }
+  }
+
+  highlightObject(data){
+    this.clearMap();
+    this.geoJsonObjectLayer = this.MapHelperService.createGeoJsonObject(data).addTo(this.map);
+    this.map.fitBounds(this.geoJsonObjectLayer.getBounds())
   }
 
   onCheckService(){
@@ -160,21 +124,82 @@ class MapController {
 
   }
 
-  openModal(type, attributes){
-    this.MapHelperService.openModal(type, attributes);
-  }
-
   openServiceWin(){
     this.winService.open();
   }
 
-  show(tabStripDataSource){
-    let childScope = angular.element(this.win2.element).scope();
+  openAttributeWin(features){
+    let attributes = this.MapHelperService.parseFeatureInfo(features),
+      ds = [],
+      badAttrField = this.Geoserver.getBadAttrField();
 
-    childScope.tabStripDataSource = tabStripDataSource;
-    this.tabStripDataSource = tabStripDataSource;
-    this.win2.open();
+    this.grid = [];
+    this.gridOptions = [];
 
+    angular.forEach(attributes, (arrayOfObject, layerName) => {
+      let gridOptions = {
+        sortable: true,
+        columns: [],
+        dataSource: {
+          data: []
+        },
+        selectable: "row"
+      };
+
+      if (gridOptions.columns.length === 0){
+        angular.forEach(arrayOfObject[0], (attrVal, attrKey) => {
+          if (!~badAttrField.indexOf(attrKey)){
+            if (attrKey === 'LIC_BEGIN' || attrKey === 'LIC_END'){
+              gridOptions.columns.push({
+                field: attrKey,
+                title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
+                width: 200,
+                format: "{0: dd.MM.yyyy}"
+              })
+            } else
+              gridOptions.columns.push({
+                field: attrKey,
+                title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
+                width: 200
+              })
+          }
+        })
+      }
+
+      angular.forEach(arrayOfObject, object => {
+        object['LIC_END'] = new Date(object['LIC_END']);
+        object['LIC_BEGIN'] = new Date(object['LIC_BEGIN']);
+        gridOptions.dataSource.data.push(object);
+      });
+
+      this.gridOptions.push(gridOptions);
+
+      let index = this.gridOptions.indexOf(gridOptions);
+
+
+      ds.push({
+        text: this.Geoserver.getAliasByLayerName(layerName),
+        content: `
+                        <div style="padding: 1em">
+                          <kendo-grid k-scope-field="$ctrl.grid[${index}]" options="$ctrl.gridOptions[${index}]" k-on-change="$ctrl.handlerForObjectClick(data)">
+                            <div></div>
+                          </kendo-grid>
+                        </div>
+              `
+      })
+    });
+
+    this.tabStripDataSourceForAttributeWin = ds;
+    this.winAttribute.open();
+  }
+
+  tabActivate(){
+    angular.forEach(this.grid, grid => {
+      if (grid.select().length !== 0) {
+        this.clearMap();
+        grid.clearSelection();
+      }
+    });
   }
 
 }

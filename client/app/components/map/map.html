@@ -9,7 +9,6 @@
          k-checkboxes="{'checkChildren': true}"
          k-data-source="$ctrl.treeDataForServiceWin"
          k-on-check="$ctrl.onCheckService()">
-
     </div>
   </div>
 </div>
@@ -19,7 +18,8 @@
      k-on-open="$ctrl.winAttributeVisible = true" k-on-close="$ctrl.winAttributeVisible = false">
   <div class="k-content">
     <div kendo-tab-strip="$ctrl.tabStripForAttributeWin" k-data-source="$ctrl.tabStripDataSourceForAttributeWin"
-         k-data-text-field="'text'" k-data-content-field="'content'">
+         k-data-text-field="'text'" k-data-content-field="'content'"
+         k-on-activate="$ctrl.tabActivate()">
     </div>
   </div>
 </div>

@@ -1,12 +1,13 @@
-import serviceModalHTML from "./serviceModal.html";
-import legendModalHTML from "./legendModal.html";
-import attributeModal from "./attributeModal.html";
-
 class MapHelper{
 
   constructor($http){
     "ngInject";
     this.$http = $http;
+
+    let image = new Image();
+    image.src= `${this.wmsUrl}?REQUEST=GetLegendGraphic&VERSION=1.1.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=GEO_SHP_FIELD`;
+    document.body.appendChild(image);
+
   }
 
   createMap(mapController){
@@ -24,6 +25,14 @@ class MapHelper{
     return "http://95.167.215.210:8082/geoserver/tis/wms";
   }
 
+  get styleForObject(){
+    return {
+      color: "#00a2eb",
+      fillOpacity: 0,
+      opacity: 1
+    }
+  }
+
   createWMS(serviceName){
     let wms =  L.tileLayer.wms(this.wmsUrl, {
       layers: serviceName,
@@ -37,7 +46,6 @@ class MapHelper{
 
   getFeatureInfoUrl(latlng, map, services){
     // Construct a GetFeatureInfo request URL given a point
-    console.log(map);
     var point = map.latLngToContainerPoint(latlng, map.getZoom()),
       size = map.getSize(),
 
@@ -88,168 +96,15 @@ class MapHelper{
         layerName = feature.id.substring(0, dotSymbolPos);
 
       (!attributes[layerName]) && (attributes[layerName] = []);
-
       feature.properties.id = feature.id;
       attributes[layerName].push(feature.properties);
     });
     return attributes;
   }
 
-  // objectClick(objectAttributes){
-  //   this.Geoserver.getFeature(objectAttributes.id).then(
-  //     response => this.highlightObject(response.data),
-  //     error => console.log(error)
-  //   );
-  // }
-  //
-  // getStyleForObject(){
-  //   return {
-  //     color: "black"
-  //   }
-  // }
-  //
-  // showLayers(){
-  //   let visibleLayers = [];
-  //
-  //   angular.forEach(this.layers, (layerVisible, layerName) => {
-  //     (layerVisible) && (visibleLayers.push(layerName));
-  //   });
-  //
-  //   this.wms.setParams({
-  //     layers: visibleLayers.join(",")
-  //   }, false);
-  // }
-  //
-  // unHighlightObject(){
-  //   !!this.geoJsonObjectLayer && this.map.removeLayer(this.geoJsonObjectLayer);
-  // }
-  //
-  // highlightObject(data){
-  //   if (!!this.geoJsonObjectLayer){
-  //     this.unHighlightObject();
-  //   }
-  //   this.geoJsonObjectLayer = L.geoJson(data, this.getStyleForObject()).addTo(this.map);
-  // }
-  //
-  // openModal(type, attributes){
-  //   if (type === 'service'){
-  //     let linkFunction = this.$compile(angular.element(serviceModalHTML)),
-  //         newScope = this.$scope.$new();
-  //
-  //     newScope.services = this.layers;
-  //     newScope.showLayers = this.showLayers.bind(this);
-  //     newScope.getAliasByLayerName = this.Geoserver.getAliasByLayerName.bind(this.Geoserver);
-  //
-  //     newScope.gridOptions = [];
-  //
-  //     L.control.window(this.map,{title:'Сервис', content: linkFunction(newScope)[0]})
-  //       .showOn([140, 20])
-  //   } else if (type === 'legend'){
-  //     let linkFunction = this.$compile(angular.element(legendModalHTML)),
-  //         newScope = this.$scope.$new();
-  //
-  //     L.control.window(this.map,{title:'Легенда', content: linkFunction(newScope)[0]})
-  //       .showOn([140, 40])
-  //   } else if (type === 'attributes'){
-  //
-  //     let ds = [],
-  //         newScope = !!this.attributesModal ? angular.element(this.tabStrip.element[0]).scope() : this.$scope.$new(),
-  //         badAttrField = this.Geoserver.getBadAttrField();
-  //
-  //     newScope.gridOptions = [];
-  //
-  //     angular.forEach(attributes, (arrayOfObject, layerName) => {
-  //       let gridOptions = {
-  //         sortable: true,
-  //         columns: [],
-  //         dataSource: {
-  //           data: []
-  //         },
-  //         selectable: "row"
-  //       };
-  //
-  //       if (gridOptions.columns.length === 0){
-  //         angular.forEach(arrayOfObject[0], (attrVal, attrKey) => {
-  //           if (!~badAttrField.indexOf(attrKey)){
-  //             if (attrKey === 'LIC_BEGIN' || attrKey === 'LIC_END'){
-  //               gridOptions.columns.push({
-  //                 field: attrKey,
-  //                 title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
-  //                 width: 200,
-  //                 format: "{0: dd.MM.yyyy}"
-  //               })
-  //             } else
-  //             gridOptions.columns.push({
-  //               field: attrKey,
-  //               title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
-  //               width: 200
-  //             })
-  //           }
-  //         })
-  //       }
-  //
-  //       angular.forEach(arrayOfObject, object => {
-  //         object['LIC_END'] = new Date(object['LIC_END']);
-  //         object['LIC_BEGIN'] = new Date(object['LIC_BEGIN']);
-  //         gridOptions.dataSource.data.push(object);
-  //       });
-  //
-  //       newScope.gridOptions.push(gridOptions);
-  //
-  //       let index = newScope.gridOptions.indexOf(gridOptions);
-  //
-  //       ds.push({
-  //         text: this.Geoserver.getAliasByLayerName(layerName),
-  //         content: `
-  //                   <div style="padding: 1em">
-  //                     <kendo-grid options="gridOptions[${index}]" k-on-change="handleChange(data)">
-  //                       <div></div>
-  //                     </kendo-grid>
-  //                   </div>
-  //         `
-  //       })
-  //     });
-  //
-  //     newScope.handleChange = this.objectClick.bind(this);
-  //
-  //     if (!this.attributesModal){
-  //       let linkFunction = this.$compile(angular.element(attributeModal));
-  //
-  //       newScope.tabStripDataSource = ds;
-  //
-  //       window.setTimeout(() => newScope.tabStrip.select(0));
-  //
-  //       console.log(attributes);
-  //
-  //       this.attributesModal =  L.control.window(this.map,{
-  //         title:'Атрибутика',
-  //         content: linkFunction(newScope)[0],
-  //         position: "left",
-  //         maxWidth: '800'
-  //       }).show();
-  //
-  //       this.attributesModal.on('hide', e =>  {
-  //         this.attributesModal.off('hide');
-  //         this.attributesModal = null;
-  //         this.unHighlightObject();
-  //       });
-  //
-  //       this.tabStrip = newScope.tabStrip;
-  //
-  //       this.mapComponent.show(newScope.tabStripDataSource);
-  //
-  //     } else {
-  //       this.unHighlightObject();
-  //
-  //       var dataSource = kendo.data.DataSource.create(ds);
-  //
-  //       // angular.element(this.tabStrip.element[0]).scope().tabStripDataSource = [{text: "TAB", content: "CONTENT"}];
-  //
-  //       this.tabStrip.setDataSource(dataSource);
-  //       this.tabStrip.select(0);
-  //     }
-  //   }
-  // }
+  createGeoJsonObject(data){
+    return L.geoJson(data, this.styleForObject);
+  }
 }
 
 export default MapHelper;
