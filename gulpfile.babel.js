@@ -16,7 +16,6 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import colorsSupported      from 'supports-color';
 import historyApiFallback   from 'connect-history-api-fallback';
-import nodemon              from 'gulp-nodemon';
 
 let root = 'client';
 
@@ -71,7 +70,7 @@ gulp.task('serve', () => {
   config.entry.app = [
     // this modules required to make HRM working
     // it responsible for all this webpack magic
-    'webpack-hot-middleware/client?reload=true',
+    'webpack-hot-middleware/client?reload=true'
     // application entry point
   ].concat(paths.entry);
 

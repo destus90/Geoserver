@@ -10,7 +10,7 @@ let mapModule = angular.module('map', [
   "ngInject";
   $stateProvider
     .state('map', {
-      url: '/map',
+      url: '/',
       component: 'map'
     });
 })

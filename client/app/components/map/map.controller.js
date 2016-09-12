@@ -33,8 +33,9 @@ class MapController {
     this.wms = [];
     this.gridOptions = [];
 
-    this.map.on('click', this.handlerForMapClick.bind(this))
-    
+    this.map.on('click', this.handlerForMapClick.bind(this));
+
+    this.Geoserver.findFeatureByText(["GEO_SHP_LICENSES", "GEO_SHP_FIELD"], "2038");
   }
 
   $onDestroy(){
@@ -42,10 +43,8 @@ class MapController {
   }
 
   handlerForMapClick(e){
-    let services = [];
     this.clearMap();
-    angular.forEach(this.indexOfVisibleWMS, index => services.push(this.services[index]));
-    this.MapHelperService.getFeatureInfo(e.latlng, this.map, services).then(
+    this.MapHelperService.getFeatureInfo(e.latlng, this.map, this.activeService).then(
       response => this.openAttributeWin(response.data.features),
       error => console.log(error)
     )
@@ -53,6 +52,16 @@ class MapController {
 
   clearMap(){
     !!this.geoJsonObjectLayer && this.map.removeLayer(this.geoJsonObjectLayer)
+  }
+
+  get activeService(){
+    let active_service = [];
+
+    this.indexOfVisibleWMS.sort();
+
+    angular.forEach(this.indexOfVisibleWMS, index => active_service.push(this.services[index]));
+
+    return active_service;
   }
 
   set winAttributeVisible(val){
@@ -102,11 +111,7 @@ class MapController {
     angular.forEach(this.indexOfVisibleWMS, index => {
       let layerNotChecked = checkedNodes.indexOf(index) === -1;
 
-      if (layerNotChecked){
-        this.map.removeLayer(this.wms[index]);
-      } else {
-        visibleLayers.push(index);
-      }
+      layerNotChecked ? this.map.removeLayer(this.wms[index]) : visibleLayers.push(index);
     });
 
     this.indexOfVisibleWMS = visibleLayers;
@@ -121,11 +126,31 @@ class MapController {
       }
     });
 
+    //update legend window content, if open
+    this.winLegendVisible && this.setContentForLegendWin();
+  }
 
+  setContentForLegendWin(){
+    let ds = {
+      data: []
+    };
+
+    angular.forEach(this.activeService, service => ds.data.push({
+      text: this.Geoserver.getAliasByLayerName(service),
+      items: [
+        {text: '', imageUrl: this.MapHelperService.getLegendGraphic(service)}
+      ]
+    }));
+    this.treeDataForLegendWin = new kendo.data.HierarchicalDataSource(ds);
   }
 
   openServiceWin(){
     this.winService.open();
+  }
+
+  openLegendWin(){
+    this.setContentForLegendWin();
+    this.winLegend.open();
   }
 
   openAttributeWin(features){

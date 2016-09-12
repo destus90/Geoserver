@@ -3,11 +3,6 @@ class MapHelper{
   constructor($http){
     "ngInject";
     this.$http = $http;
-
-    let image = new Image();
-    image.src= `${this.wmsUrl}?REQUEST=GetLegendGraphic&VERSION=1.1.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=GEO_SHP_FIELD`;
-    document.body.appendChild(image);
-
   }
 
   createMap(mapController){
@@ -31,6 +26,10 @@ class MapHelper{
       fillOpacity: 0,
       opacity: 1
     }
+  }
+
+  getLegendGraphic(service_name){
+    return `${this.wmsUrl}?REQUEST=GetLegendGraphic&VERSION=1.1.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=${service_name}`
   }
 
   createWMS(serviceName){

@@ -9,7 +9,7 @@ module.exports = {
   entry: {},
 
   resolve: {
-    modulesDirectories: ['node_modules', __dirname + '/client/vendor'],
+    modulesDirectories: ['node_modules', __dirname + '/vendor'],
     extensions: ['', '.js']
   },
 
@@ -30,28 +30,28 @@ module.exports = {
        { test: /\.styl$/, loader: 'style!css!stylus' },
        { test: /\.css$/, loader: 'style!file!css' },
       // inline base64 URLs for <=8k images, direct URLs for the rest
-      { test: /\.(png|jpg|gif)$/, loader: 'url-loader?limit=8192'},
+      { test: /\.(png|jpg|gif)$/, loader: 'url-loader?limit=8192&name=[path][name].[ext]'},
       // helps to load bootstrap's css.
       { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=application/font-woff' },
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=application/font-woff' },
       { test: /\.woff(\?[\w\d]+)?$/,
-        loader: 'url?limit=10000&minetype=application/font-woff' },
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=application/font-woff' },
       { test: /\.woff2$/,
-        loader: 'url?limit=10000&minetype=application/font-woff' },
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=application/font-woff' },
       { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=application/octet-stream' },
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=application/octet-stream' },
       { test: /\.ttf(\?v=\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=application/octet-stream'},
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=application/octet-stream'},
       { test: /\.ttf(\?[\w\d]+)?$/,
-        loader: 'url?limit=10000&minetype=application/octet-stream' },
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=application/octet-stream' },
       { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'file' },
+        loader: 'file?name=[path][name].[ext]' },
       { test: /\.eot(\?[\w\d]+)?$/,
-        loader: 'file' },
+        loader: 'file?name=[path][name].[ext]' },
       { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&minetype=image/svg+xml' },
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=image/svg+xml' },
       { test: /\.svg(\?[\w\d]+)?$/,
-        loader: 'url?limit=10000&minetype=image/svg+xml' }
+        loader: 'url?limit=10000&name=[path][name].[ext]&minetype=image/svg+xml' }
     ]
   },
   plugins: [

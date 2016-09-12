@@ -1,11 +1,15 @@
 class ControlController {
 
-  constructor() {
-  }
-
   showModal(type){
-    // this.openModal({type})
-    type === 'service' ? this.openServiceWin() : null;
+    switch (type){
+      case 'service': {
+        this.openServiceWin();
+        break;
+      }
+      case 'legend': {
+        this.openLegendWin();
+      }
+    }
   }
 }
 

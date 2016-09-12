@@ -1,9 +1,10 @@
 class GeoServer{
 
-  constructor($http){
+  constructor($http, $q){
     "ngInject";
 
     this.$http = $http;
+    this.$q = $q;
 
     this.aliasAttrField = {
       'GEO_SHP_LICENSES': {
@@ -40,8 +41,115 @@ class GeoServer{
       "GEO_SHP_LICENSES": "Лицензионные участки",
       "GEO_SHP_FIELD": "Месторождения углеводородов",
       "GEO_SHP_SEISPROF": "Региональные сейсморазведочные профили"
-    }
+    };
 
+    this.describeService = {};
+
+    angular.forEach(this.getServices(), service_name => this.describeService[service_name] = []);
+
+  }
+
+  get wfs(){
+    return "http://95.167.215.210:8082/geoserver/tis/wfs";
+  }
+
+  findFeatureByText(services, text){
+
+    this.geDescribeService(services).then(
+      response => {
+        let array_of_promise = [];
+
+        angular.forEach(response, (service_description, service_name) => {
+          let query = [];
+
+          if (services.indexOf(service_name) !== -1){
+            // if service is active
+            angular.forEach(service_description, prop => {
+              query.push(`${prop} LIKE '%${text}%'`);
+            });
+            array_of_promise.push(this.$http({
+              url: this.wfs,
+              params: {
+                version: "1.1.1",
+                outputFormat: 'application/json',
+                typeNames: `tis:${service_name}`,
+                request: 'GetFeature',
+                CQL_FILTER: query.join(" OR ")
+              }
+            }))
+          }
+        });
+
+        this.$q.all(array_of_promise).then(
+          response => console.log(response),
+          error => console.log(error)
+        )
+
+      },
+      error => console.log(error)
+    );
+
+    // this.$http({
+    //   url: "http://95.167.215.210:8082/geoserver/tis/wfs",
+    //   params: {
+    //     service: "wfs",
+    //     version: "1.1.1",
+    //     outputFormat: 'application/json',
+    //     typeNames: 'tis:GEO_SHP_LICENSES',
+    //     request: 'GetFeature',
+    //     CQL_FILTER: "LIC_NAME LIKE '%-%'"
+    //   }
+    //
+    // }).then(
+    //   response => console.log(response)
+    // )
+  }
+
+  geDescribeService(services){
+    return this.$q((resolve, reject) => {
+      let array_of_promise = [],
+        serviceWithoutDescription = [];
+
+      angular.forEach(services, service_name => {
+        if (this.describeService[service_name].length === 0){
+          serviceWithoutDescription.push(`tis:${service_name}`)
+        }
+      });
+      if (serviceWithoutDescription.length === 0) {
+        resolve(this.describeService)
+      } else {
+        this.$http({
+          url: this.wfs,
+          params: {
+            service: "wfs",
+            version: "1.1.1",
+            request: "DescribeFeatureType",
+            outputFormat: "application/json",
+            typeName: serviceWithoutDescription.join(',')
+          }
+        }).then(
+          response => {
+            let badProp = this.getBadAttrField();
+
+            angular.forEach(response.data.featureTypes, feature => {
+              let describe_service = [];
+
+              angular.forEach(feature.properties, prop => {
+                if (badProp.indexOf(prop.name) === -1){
+                  describe_service.push(prop.name);
+                }
+              });
+
+              this.describeService[feature.typeName] = describe_service;
+            });
+
+            resolve(this.describeService);
+          },
+          error => reject(error)
+        )
+      }
+
+    })
   }
 
   getServices(){
@@ -62,7 +170,7 @@ class GeoServer{
 
   getFeature(featureID){
     return this.$http({
-      url: "http://95.167.215.210:8082/geoserver/tis/wfs",
+      url: this.wfs,
       params: {
         service: "wfs",
         version: "1.1.0",

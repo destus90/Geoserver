@@ -1,6 +1,7 @@
 <div id="map"></div>
-<control open-service-win="$ctrl.openServiceWin()" open-modal="$ctrl.openModal(type)"></control>
+<control open-service-win="$ctrl.openServiceWin()" open-legend-win="$ctrl.openLegendWin()" open-modal="$ctrl.openModal(type)"></control>
 
+<!--service modal-->
 <div kendo-window="$ctrl.winService" k-title="'Список сервисов'"
      k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']">
 
@@ -12,7 +13,22 @@
     </div>
   </div>
 </div>
+<!--end service modal-->
 
+<!--legend modal-->
+<div kendo-window="$ctrl.winLegend" k-title="'Легенда'"
+     k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']"
+     k-on-open="$ctrl.winLegendVisible = true" k-on-close="$ctrl.winLegendVisible = false">
+
+  <div class="k-content">
+    <div kendo-tree-view="$ctrl.treeLegend"
+         k-data-source="$ctrl.treeDataForLegendWin">
+    </div>
+  </div>
+</div>
+<!--end legend modal-->
+
+<!--attribute modal-->
 <div kendo-window="$ctrl.winAttribute" k-title="'Атрибутика'" k-ng-delay="$ctrl.tabStripForAttributeWin"
      k-width="800" k-height="280" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']"
      k-on-open="$ctrl.winAttributeVisible = true" k-on-close="$ctrl.winAttributeVisible = false">
@@ -23,3 +39,4 @@
     </div>
   </div>
 </div>
+<!--end attribute modal-->
