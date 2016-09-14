@@ -34,18 +34,28 @@ class MapController {
     this.gridOptions = [];
 
     this.map.on('click', this.handlerForMapClick.bind(this));
-
-    this.Geoserver.findFeatureByText(["GEO_SHP_LICENSES", "GEO_SHP_FIELD"], "2038");
   }
 
   $onDestroy(){
     this.map.off("click");
   }
 
+  findFeatureByText(text){
+    this.Geoserver.findFeatureByText(this.activeService, text).then(
+      response => {
+        let features = [];
+
+        angular.forEach(response, object => features.push(...object.data.features));
+        this.openAttributeWin(features);
+      },
+      error => console.log(error)
+    );
+  }
+
   handlerForMapClick(e){
     this.clearMap();
     this.MapHelperService.getFeatureInfo(e.latlng, this.map, this.activeService).then(
-      response => this.openAttributeWin(response.data.features),
+      response => {console.log(response); this.openAttributeWin(response.data.features)},
       error => console.log(error)
     )
   }

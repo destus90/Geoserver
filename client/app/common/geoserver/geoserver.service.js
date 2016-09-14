@@ -55,39 +55,43 @@ class GeoServer{
 
   findFeatureByText(services, text){
 
-    this.geDescribeService(services).then(
-      response => {
-        let array_of_promise = [];
+    return this.$q((resolve, reject) => {
+      this.geDescribeService(services).then(
+        response => {
+          let array_of_promise = [];
 
-        angular.forEach(response, (service_description, service_name) => {
-          let query = [];
+          angular.forEach(response, (service_description, service_name) => {
+            let query = [];
 
-          if (services.indexOf(service_name) !== -1){
-            // if service is active
-            angular.forEach(service_description, prop => {
-              query.push(`${prop} LIKE '%${text}%'`);
-            });
-            array_of_promise.push(this.$http({
-              url: this.wfs,
-              params: {
-                version: "1.1.1",
-                outputFormat: 'application/json',
-                typeNames: `tis:${service_name}`,
-                request: 'GetFeature',
-                CQL_FILTER: query.join(" OR ")
-              }
-            }))
-          }
-        });
+            if (services.indexOf(service_name) !== -1){
+              // if service is active
+              angular.forEach(service_description, prop => {
+                query.push(`${prop} LIKE '%${text}%'`);
+              });
+              array_of_promise.push(this.$http({
+                url: this.wfs,
+                params: {
+                  version: "1.1.1",
+                  outputFormat: 'application/json',
+                  typeNames: `tis:${service_name}`,
+                  request: 'GetFeature',
+                  CQL_FILTER: query.join(" OR ")
+                }
+              }))
+            }
+          });
 
-        this.$q.all(array_of_promise).then(
-          response => console.log(response),
-          error => console.log(error)
-        )
+          this.$q.all(array_of_promise).then(
+            response => resolve(response),
+            error => reject(error)
+          )
 
-      },
-      error => console.log(error)
-    );
+        },
+        error => reject(error)
+      );
+    });
+
+
 
     // this.$http({
     //   url: "http://95.167.215.210:8082/geoserver/tis/wfs",

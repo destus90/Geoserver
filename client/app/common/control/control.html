@@ -1,4 +1,14 @@
 <div class="control k-content">
   <kendo-button class="k-primary" ng-click="$ctrl.showModal('service')">Сервис</kendo-button>
   <kendo-button class="k-primary" ng-click="$ctrl.showModal('legend')">Легенда</kendo-button>
+
+  <div class="search">
+    <span class="k-textbox k-space-left" style="width: 200px;" >
+      <input type="text" ng-model="$ctrl.findText" />
+      <a href="#" class="k-icon k-i-search">&nbsp;</a>
+    </span>
+    <kendo-button class="k-primary" ng-click="$ctrl.find()">Найти</kendo-button>
+  </div>
+
+
 </div>

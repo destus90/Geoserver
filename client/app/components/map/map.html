@@ -1,5 +1,11 @@
 <div id="map"></div>
-<control open-service-win="$ctrl.openServiceWin()" open-legend-win="$ctrl.openLegendWin()" open-modal="$ctrl.openModal(type)"></control>
+<control
+  open-service-win="$ctrl.openServiceWin()"
+  open-legend-win="$ctrl.openLegendWin()"
+  open-modal="$ctrl.openModal(type)"
+  find-feature-by-text="$ctrl.findFeatureByText(text)">
+
+</control>
 
 <!--service modal-->
 <div kendo-window="$ctrl.winService" k-title="'Список сервисов'"
@@ -35,7 +41,7 @@
   <div class="k-content">
     <div kendo-tab-strip="$ctrl.tabStripForAttributeWin" k-data-source="$ctrl.tabStripDataSourceForAttributeWin"
          k-data-text-field="'text'" k-data-content-field="'content'"
-         k-on-activate="$ctrl.tabActivate()">
+         k-on-activate="$ctrl.tabActivate()" k-tab-position="'left'">
     </div>
   </div>
 </div>

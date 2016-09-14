@@ -6,7 +6,8 @@ let controlComponent = {
   restrict: 'E',
   bindings: {
     openServiceWin: "&",
-    openLegendWin: "&"
+    openLegendWin: "&",
+    findFeatureByText: "&"
   },
   template,
   controller

@@ -11,6 +11,10 @@ class ControlController {
       }
     }
   }
+
+  find(){
+    this.findFeatureByText({text: this.findText})
+  }
 }
 
 export default ControlController;
