@@ -1,38 +1,54 @@
+<header></header>
 <div id="map"></div>
 <control
-  open-service-win="$ctrl.openServiceWin()"
-  open-legend-win="$ctrl.openLegendWin()"
-  open-modal="$ctrl.openModal(type)"
+  on-switch-tab="$ctrl.switchTab($event)"
   find-feature-by-text="$ctrl.findFeatureByText(text)">
-
 </control>
+<sidebar></sidebar>
 
-<!--service modal-->
-<div kendo-window="$ctrl.winService" k-title="'Список сервисов'"
-     k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']">
-
-  <div class="k-content">
-    <div kendo-tree-view="$ctrl.tree"
-         k-checkboxes="{'checkChildren': true}"
-         k-data-source="$ctrl.treeDataForServiceWin"
-         k-on-check="$ctrl.onCheckService()">
-    </div>
+<div class="c-tab__content" style="margin-left: 10px;" ng-show="$ctrl.tabMode === 'service'">
+  <div kendo-tree-view="$ctrl.tree"
+       k-checkboxes="{'checkChildren': true}"
+       k-data-source="$ctrl.treeDataForServiceWin"
+       k-on-check="$ctrl.onCheckService()">
   </div>
 </div>
-<!--end service modal-->
 
-<!--legend modal-->
-<div kendo-window="$ctrl.winLegend" k-title="'Легенда'"
-     k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']"
-     k-on-open="$ctrl.winLegendVisible = true" k-on-close="$ctrl.winLegendVisible = false">
-
-  <div class="k-content">
-    <div kendo-tree-view="$ctrl.treeLegend"
-         k-data-source="$ctrl.treeDataForLegendWin">
-    </div>
+<div class="c-tab__content" style="margin-left: 10px;" ng-show="$ctrl.tabMode === 'legend'">
+  <div kendo-tree-view="$ctrl.treeLegend"
+       k-data-source="$ctrl.treeDataForLegendWin">
+  </div>
+  <div ng-show="$ctrl.indexOfVisibleWMS.length === 0">
+    <p class="c-legend--empty">Нет данных для отображения</p>
   </div>
 </div>
-<!--end legend modal-->
+
+<!--&lt;!&ndash;service modal&ndash;&gt;-->
+<!--<div kendo-window="$ctrl.winService" k-title="'Список сервисов'"-->
+     <!--k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']">-->
+
+  <!--<div class="k-content">-->
+    <!--<div kendo-tree-view="$ctrl.tree"-->
+         <!--k-checkboxes="{'checkChildren': true}"-->
+         <!--k-data-source="$ctrl.treeDataForServiceWin"-->
+         <!--k-on-check="$ctrl.onCheckService()">-->
+    <!--</div>-->
+  <!--</div>-->
+<!--</div>-->
+<!--&lt;!&ndash;end service modal&ndash;&gt;-->
+
+<!--&lt;!&ndash;legend modal&ndash;&gt;-->
+<!--<div kendo-window="$ctrl.winLegend" k-title="'Легенда'"-->
+     <!--k-width="600" k-height="200" k-visible="false" k-actions="['Minimize', 'Maximize', 'Close']"-->
+     <!--k-on-open="$ctrl.winLegendVisible = true" k-on-close="$ctrl.winLegendVisible = false">-->
+
+  <!--<div class="k-content">-->
+    <!--<div kendo-tree-view="$ctrl.treeLegend"-->
+         <!--k-data-source="$ctrl.treeDataForLegendWin">-->
+    <!--</div>-->
+  <!--</div>-->
+<!--</div>-->
+<!--&lt;!&ndash;end legend modal&ndash;&gt;-->
 
 <!--attribute modal-->
 <div kendo-window="$ctrl.winAttribute" k-title="'Атрибутика'" k-ng-delay="$ctrl.tabStripForAttributeWin"
@@ -41,7 +57,8 @@
   <div class="k-content">
     <div kendo-tab-strip="$ctrl.tabStripForAttributeWin" k-data-source="$ctrl.tabStripDataSourceForAttributeWin"
          k-data-text-field="'text'" k-data-content-field="'content'"
-         k-on-activate="$ctrl.tabActivate()" k-tab-position="'left'">
+         k-on-activate="$ctrl.tabActivate(kendoEvent)" k-tab-position="'left'"
+         class="tab-strip">
     </div>
   </div>
 </div>

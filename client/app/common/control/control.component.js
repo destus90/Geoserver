@@ -5,8 +5,7 @@ import './control.styl';
 let controlComponent = {
   restrict: 'E',
   bindings: {
-    openServiceWin: "&",
-    openLegendWin: "&",
+    onSwitchTab: '&',
     findFeatureByText: "&"
   },
   template,

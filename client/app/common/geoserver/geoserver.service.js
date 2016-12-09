@@ -66,7 +66,9 @@ class GeoServer{
             if (services.indexOf(service_name) !== -1){
               // if service is active
               angular.forEach(service_description, prop => {
-                query.push(`${prop} LIKE '%${text}%'`);
+                query.push(`
+                      strToLowerCase(${prop}) LIKE '%${text}%' 
+                `);
               });
               array_of_promise.push(this.$http({
                 url: this.wfs,
@@ -75,6 +77,7 @@ class GeoServer{
                   outputFormat: 'application/json',
                   typeNames: `tis:${service_name}`,
                   request: 'GetFeature',
+                  srsName: 'EPSG:4326',
                   CQL_FILTER: query.join(" OR ")
                 }
               }))
@@ -184,6 +187,18 @@ class GeoServer{
         srsName: 'EPSG:4326'
       }
     })
+  }
+
+  getLayerNameByAlias(alias){
+    let serviceName;
+
+    angular.forEach(this.aliasLayerName, (curr_alias, service_name) => {
+      if (curr_alias === alias) {
+        serviceName = service_name;
+      }
+    });
+
+    return serviceName;
   }
 
 

@@ -5,6 +5,7 @@ import Components from './components/components';
 import AppComponent from './app.component';
 import 'normalize.css';
 import "imports?angular!kendo/js/kendo.all.min";
+import "kendo/js/kendo.messages.ru-RU.min";
 
 angular.module('app', [
     uiRouter,

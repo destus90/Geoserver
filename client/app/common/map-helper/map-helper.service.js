@@ -6,7 +6,7 @@ class MapHelper{
   }
 
   createMap(mapController){
-    let map = L.map('map').setView([61.000000, 69.000000], 6);
+    let map = L.map('map').setView([61.000000, 69.000000], 7);
 
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -20,11 +20,17 @@ class MapHelper{
     return "http://95.167.215.210:8082/geoserver/tis/wms";
   }
 
-  get styleForObject(){
+  get styleForHighlightObject(){
     return {
       color: "#00a2eb",
-      fillOpacity: 0,
-      opacity: 1
+      fillColor: "#1E90FF",
+    }
+  }
+
+  get styleForSelectObject(){
+    return {
+      color: "#AA000A",
+      fillColor: "#FDA8A8",
     }
   }
 
@@ -101,8 +107,14 @@ class MapHelper{
     return attributes;
   }
 
-  createGeoJsonObject(data){
-    return L.geoJson(data, this.styleForObject);
+  /**
+   *
+   * @param {Object} data
+   * @param {String} action
+   * action must be in (select, highlight)
+   */
+  createGeoJson(data, action){
+    return L.geoJson(data, action === 'highlight' ? this.styleForHighlightObject : this.styleForSelectObject);
   }
 }
 

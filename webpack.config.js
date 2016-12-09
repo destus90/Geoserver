@@ -26,7 +26,7 @@ module.exports = {
     ],
     loaders: [
       { test: /\.js$/, exclude: [/app\/lib/, /vendor/, /node_modules/], loader: 'ng-annotate!babel' },
-       { test: /\.html$/, loader: 'raw' },
+       { test: /\.html$/, loader: 'html' },
        { test: /\.styl$/, loader: 'style!css!stylus' },
        { test: /\.css$/, loader: 'style!file!css' },
       // inline base64 URLs for <=8k images, direct URLs for the rest

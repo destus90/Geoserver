@@ -19,11 +19,14 @@ class MapController {
 
     this.services = this.Geoserver.getServices();
 
+    this.geoJsonSelectFeatureServiceLayer = {};
+
     angular.forEach(this.services, (service, idx) => {
       dataSourceForServices.data[0].items.push({
         id: idx,
         text: this.Geoserver.getAliasByLayerName(service)
       });
+      this.geoJsonSelectFeatureServiceLayer[service] = null;
     });
 
     this.treeDataForServiceWin = new kendo.data.HierarchicalDataSource(dataSourceForServices);
@@ -32,6 +35,10 @@ class MapController {
     this.indexOfVisibleWMS = [];
     this.wms = [];
     this.gridOptions = [];
+    this._winAttributeVisible = false;
+    this.mapClick = false;
+
+    this.tabMode = 'service';
 
     this.map.on('click', this.handlerForMapClick.bind(this));
   }
@@ -41,11 +48,26 @@ class MapController {
   }
 
   findFeatureByText(text){
-    this.Geoserver.findFeatureByText(this.activeService, text).then(
+    this.unSelectObject();
+
+    this.Geoserver.findFeatureByText(this.activeService, text.toLowerCase()).then(
       response => {
         let features = [];
 
-        angular.forEach(response, object => features.push(...object.data.features));
+        angular.forEach(response, object => {
+          if (object.data.features.length !== 0){
+            //create geojson layer for active service and select features
+            let feature = object.data.features[0],
+                dotSymbolPos = feature.id.indexOf("."),
+                layerName = feature.id.substring(0, dotSymbolPos);
+
+            this.geoJsonSelectFeatureServiceLayer[layerName] = this.MapHelperService.createGeoJson(object.data, 'select');
+
+            //for grid in kendo window
+            features.push(...object.data.features)
+          }
+        });
+
         this.openAttributeWin(features);
       },
       error => console.log(error)
@@ -55,13 +77,41 @@ class MapController {
   handlerForMapClick(e){
     this.clearMap();
     this.MapHelperService.getFeatureInfo(e.latlng, this.map, this.activeService).then(
-      response => {console.log(response); this.openAttributeWin(response.data.features)},
+      response => {
+        this.mapClick = true;
+        this.openAttributeWin(response.data.features);
+        this.mapClick = false;
+      },
       error => console.log(error)
     )
   }
 
-  clearMap(){
+  highlightObject(data){
+    this.unHighlightObject();
+    this.geoJsonObjectLayer = this.MapHelperService.createGeoJson(data, 'highlight').addTo(this.map);
+    this.map.fitBounds(this.geoJsonObjectLayer.getBounds())
+  }
+
+  selectObject(service_name){
+    let geoJson = this.geoJsonSelectFeatureServiceLayer[service_name];
+    if (geoJson){
+      this.unSelectObject();
+      this.map.addLayer(geoJson);
+    }
+
+  }
+
+  unHighlightObject(){
     !!this.geoJsonObjectLayer && this.map.removeLayer(this.geoJsonObjectLayer)
+  }
+
+  unSelectObject(){
+    angular.forEach(this.geoJsonSelectFeatureServiceLayer, geojson => !!geojson && this.map.removeLayer(geojson));
+  }
+
+  clearMap(){
+    this.unHighlightObject();
+    this.unSelectObject();
   }
 
   get activeService(){
@@ -74,11 +124,16 @@ class MapController {
     return active_service;
   }
 
+  get winAttributeVisible(){
+    return this._winAttributeVisible;
+  }
+
   set winAttributeVisible(val){
     this.$timeout(() => this.tabStripForAttributeWin.select(0));
     if (val === false){
       this.clearMap();
     }
+    this._winAttributeVisible = val;
   }
 
   handlerForObjectClick(object){
@@ -88,12 +143,6 @@ class MapController {
         error => console.log(error)
       )
     }
-  }
-
-  highlightObject(data){
-    this.clearMap();
-    this.geoJsonObjectLayer = this.MapHelperService.createGeoJsonObject(data).addTo(this.map);
-    this.map.fitBounds(this.geoJsonObjectLayer.getBounds())
   }
 
   onCheckService(){
@@ -140,6 +189,24 @@ class MapController {
     this.winLegendVisible && this.setContentForLegendWin();
   }
 
+  /**
+   *
+   * @param {string} type
+   */
+  switchTab({type}){
+    switch (type){
+
+      case 'service':
+        this.tabMode = 'service';
+        break;
+
+      case 'legend':
+        this.setContentForLegendWin();
+        this.tabMode = 'legend';
+        break;
+    }
+  }
+
   setContentForLegendWin(){
     let ds = {
       data: []
@@ -149,18 +216,10 @@ class MapController {
       text: this.Geoserver.getAliasByLayerName(service),
       items: [
         {text: '', imageUrl: this.MapHelperService.getLegendGraphic(service)}
-      ]
+      ],
+      expanded: true
     }));
     this.treeDataForLegendWin = new kendo.data.HierarchicalDataSource(ds);
-  }
-
-  openServiceWin(){
-    this.winService.open();
-  }
-
-  openLegendWin(){
-    this.setContentForLegendWin();
-    this.winLegend.open();
   }
 
   openAttributeWin(features){
@@ -175,8 +234,12 @@ class MapController {
       let gridOptions = {
         sortable: true,
         columns: [],
+        pageable: {
+          buttonCount: 5
+        },
         dataSource: {
-          data: []
+          data: [],
+          pageSize: 20
         },
         selectable: "row"
       };
@@ -211,7 +274,6 @@ class MapController {
 
       let index = this.gridOptions.indexOf(gridOptions);
 
-
       ds.push({
         text: this.Geoserver.getAliasByLayerName(layerName),
         content: `
@@ -228,13 +290,20 @@ class MapController {
     this.winAttribute.open();
   }
 
-  tabActivate(){
-    angular.forEach(this.grid, grid => {
-      if (grid.select().length !== 0) {
-        this.clearMap();
-        grid.clearSelection();
-      }
-    });
+  tabActivate(e){
+    console.log(this.mapClick);
+    if (this.winAttributeVisible && !this.mapClick){
+      let serviceName = this.Geoserver.getLayerNameByAlias($(e.item).find("> .k-link").text());
+
+      this.selectObject(serviceName);
+
+      angular.forEach(this.grid, grid => {
+        if (grid.select().length !== 0) {
+          this.unHighlightObject();
+          grid.clearSelection();
+        }
+      });
+    }
   }
 
 }

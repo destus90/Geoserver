@@ -1,13 +1,31 @@
+//.control
+//  position absolute
+//  z-index 999
+//  top: 90px
+//  left 20px
+//  font-size 14px
+//  float left
+//  text-align center
+//  padding 10px 20px
+//  border-radius 5px
+//
+//  & .search
+//    margin-top 10px
 .control
-  position absolute
-  z-index 999
-  top: 20px
-  left 20px
-  font-size 14px
-  float left
-  text-align center
-  padding 10px 20px
-  border-radius 5px
+  height 40px
+  background url('./toppanel.png') repeat-x
+  width 100%
 
-  & .search
-    margin-top 10px
+  &__button
+    float left
+    height 40px
+    margin-top 5px
+
+  &__button:first-child
+    margin-left 10px
+    border-top-right-radius 0
+    border-bottom-right-radius 0
+
+  .search
+    float right
+    margin-right 10px
