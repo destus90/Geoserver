@@ -49,6 +49,7 @@ class MapController {
 
   findFeatureByText(text){
     this.unSelectObject();
+    this.mapClick = false;
 
     this.Geoserver.findFeatureByText(this.activeService, text.toLowerCase()).then(
       response => {
@@ -76,11 +77,11 @@ class MapController {
 
   handlerForMapClick(e){
     this.clearMap();
+    this.mapClick = true;
     this.MapHelperService.getFeatureInfo(e.latlng, this.map, this.activeService).then(
       response => {
-        this.mapClick = true;
+        console.log('get feature info');
         this.openAttributeWin(response.data.features);
-        this.mapClick = false;
       },
       error => console.log(error)
     )
@@ -106,7 +107,12 @@ class MapController {
   }
 
   unSelectObject(){
-    angular.forEach(this.geoJsonSelectFeatureServiceLayer, geojson => !!geojson && this.map.removeLayer(geojson));
+    angular.forEach(this.geoJsonSelectFeatureServiceLayer, (geojson, i) => {
+      if (geojson){
+        this.map.removeLayer(geojson);
+      }
+    });
+    console.log(this.geoJsonSelectFeatureServiceLayer);
   }
 
   clearMap(){
@@ -132,6 +138,7 @@ class MapController {
     this.$timeout(() => this.tabStripForAttributeWin.select(0));
     if (val === false){
       this.clearMap();
+      this.mapClick = false;
     }
     this._winAttributeVisible = val;
   }
@@ -291,7 +298,7 @@ class MapController {
   }
 
   tabActivate(e){
-    console.log(this.mapClick);
+    console.log('tab active');
     if (this.winAttributeVisible && !this.mapClick){
       let serviceName = this.Geoserver.getLayerNameByAlias($(e.item).find("> .k-link").text());
 
