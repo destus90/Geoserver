@@ -1,3 +1,5 @@
+import L from 'leaflet';
+
 class MapHelper{
 
   constructor($http){
@@ -6,18 +8,42 @@ class MapHelper{
   }
 
   createMap(mapController){
-    let map = L.map('map').setView([61.000000, 69.000000], 7);
 
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    const osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+      });
+
+    const tis = L.tileLayer.wms("http://178.46.155.246:8082/geoserver/wms", {
+      layers: '	MAP_TOPO',
+      format: 'image/png',
+      transparent: true,
+      // attribution: "© Топографическая основа, Росреестр, 2010 - 2015 гг"
+    });
+
+    let map = L.map('map', {
+      center: [61.000000, 69.000000],
+      zoom: 7,
+      layers: [osm]
+    });
 
     map.zoomControl.setPosition('topright');
+
+    var baseMaps = {
+      "OSM": osm,
+      "TIS": tis
+    };
+
+    L.control.layers(baseMaps).addTo(map);
+
+    map.on('baselayerchange', ({layer}) => layer.bringToBack());
+
+    osm.bringToBack();
+
     return map;
   }
 
   get wmsUrl(){
-    return "http://95.167.215.210:8082/geoserver/tis/wms";
+    return "http://178.46.155.246:8082/geoserver/tis/wms";
   }
 
   get styleForHighlightObject(){

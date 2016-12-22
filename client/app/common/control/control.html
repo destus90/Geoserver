@@ -1,13 +1,13 @@
 <div class="control k-content">
-  <kendo-button class="k-primary control__button" ng-click="$ctrl.switchTab('service')">Сервис</kendo-button>
-  <kendo-button class="k-primary control__button" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" ng-click="$ctrl.switchTab('legend')">Легенда</kendo-button>
+  <kendo-button class="control__button" ng-click="$ctrl.switchTab('service')">Сервис</kendo-button>
+  <kendo-button class="control__button" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" ng-click="$ctrl.switchTab('legend')">Легенда</kendo-button>
 
   <div class="search">
     <span class="k-textbox k-space-left" style="width: 200px;" >
       <input type="text" ng-model="$ctrl.findText" ng-keypress="$ctrl.find($event)" />
       <a href="#" class="k-icon k-i-search">&nbsp;</a>
     </span>
-    <kendo-button class="k-primary" ng-click="$ctrl.find($event)">Найти</kendo-button>
+    <kendo-button ng-click="$ctrl.find($event)">Найти</kendo-button>
   </div>
 
 </div>

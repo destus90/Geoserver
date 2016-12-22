@@ -1,5 +1,4 @@
 import angular from 'angular';
-import L from "leaflet";
 import MapHelper from "./map-helper.service";
 
 
