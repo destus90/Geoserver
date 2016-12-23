@@ -17,7 +17,7 @@ class MapHelper{
   }
 
   get wmsUrl(){
-    return "http://95.167.215.210:8082/geoserver/tis/wms";
+    return "http://178.46.155.246:8082/geoserver/tis/wms";
   }
 
   get styleForHighlightObject(){

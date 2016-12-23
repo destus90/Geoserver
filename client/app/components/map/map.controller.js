@@ -1,3 +1,5 @@
+import template from './template.html';
+
 class MapController {
   constructor($timeout, MapHelperService, Geoserver) {
     "ngInject";
@@ -245,6 +247,7 @@ class MapController {
       };
 
       if (gridOptions.columns.length === 0){
+        //console.log({"arrayOfObject":arrayOfObject});
         angular.forEach(arrayOfObject[0], (attrVal, attrKey) => {
           if (!~badAttrField.indexOf(attrKey)){
             if (attrKey === 'LIC_BEGIN' || attrKey === 'LIC_END'){
@@ -253,6 +256,18 @@ class MapController {
                 title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
                 width: 200,
                 format: "{0: dd.MM.yyyy}"
+              })
+            } else
+            if (attrKey === 'NSI_ID'){
+              gridOptions.columns.push({
+                field: 'NSI_ID',
+                title: ' ',
+                width: 50,
+                template: template
+                //template: "<img src='../app/images/view-detail.png'><a href='http://ugrabase.sibsac.ru:9090/ArcGIS/services/MAP_XNMSK/MapServer/WMSServer' target='_blank'>1</a>"
+                //template: "<span ng-bind='dataItem.LIC_VID1'>#: data.LIC_VID#</span>"
+                /*hidden: true/*,
+                 format: "{0: dd.MM.yyyy}"*/
               })
             } else
               gridOptions.columns.push({

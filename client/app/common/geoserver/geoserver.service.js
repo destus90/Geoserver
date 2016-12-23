@@ -50,7 +50,7 @@ class GeoServer{
   }
 
   get wfs(){
-    return "http://95.167.215.210:8082/geoserver/tis/wfs";
+    return "http://178.46.155.246:8082/geoserver/tis/wfs";
   }
 
   findFeatureByText(services, text){
@@ -164,7 +164,7 @@ class GeoServer{
   }
 
   getBadAttrField(){
-    return ["GUID", "NSI_ID", "SHAPE_AREA", "SHAPE_LEN", "OBJECTID", "id"]
+    return ["GUID", "SHAPE_AREA", "SHAPE_LEN", "OBJECTID", "id"]
   }
 
   getAliasByAttrField(layer, attrField){
