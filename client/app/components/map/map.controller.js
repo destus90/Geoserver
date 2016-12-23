@@ -52,6 +52,8 @@ class MapController {
   findFeatureByText(text){
     this.unSelectObject();
 
+    this.mapClick = false;
+
     this.Geoserver.findFeatureByText(this.activeService, text.toLowerCase()).then(
       response => {
         let features = [];
@@ -78,11 +80,10 @@ class MapController {
 
   handlerForMapClick(e){
     this.clearMap();
+    this.mapClick = true;
     this.MapHelperService.getFeatureInfo(e.latlng, this.map, this.activeService).then(
       response => {
-        this.mapClick = true;
         this.openAttributeWin(response.data.features);
-        this.mapClick = false;
       },
       error => console.log(error)
     )
@@ -134,6 +135,7 @@ class MapController {
     this.$timeout(() => this.tabStripForAttributeWin.select(0));
     if (val === false){
       this.clearMap();
+      this.mapClick = false;
     }
     this._winAttributeVisible = val;
   }
