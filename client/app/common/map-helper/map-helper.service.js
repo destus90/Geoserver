@@ -8,10 +8,9 @@ class MapHelper{
   }
 
   createMap(mapController){
-
     const osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-      });
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    });
 
     const tis = L.tileLayer.wms("http://178.46.155.246:8082/geoserver/wms", {
       layers: '	MAP_TOPO',

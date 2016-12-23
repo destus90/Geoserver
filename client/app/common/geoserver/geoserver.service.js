@@ -164,7 +164,7 @@ class GeoServer{
   }
 
   getBadAttrField(){
-    return ["GUID",  "SHAPE_AREA", "SHAPE_LEN", "OBJECTID", "id"]
+    return ["GUID", "SHAPE_AREA", "SHAPE_LEN", "OBJECTID", "id"]
   }
 
   getAliasByAttrField(layer, attrField){
