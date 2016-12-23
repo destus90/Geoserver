@@ -1,3 +1,5 @@
+//import template from './template.html';
+
 class MapController {
   constructor($timeout, MapHelperService, Geoserver) {
     "ngInject";
@@ -252,23 +254,34 @@ class MapController {
       };
 
       if (gridOptions.columns.length === 0){
-        angular.forEach(arrayOfObject[0], (attrVal, attrKey) => {
-          if (!~badAttrField.indexOf(attrKey)){
-            if (attrKey === 'LIC_BEGIN' || attrKey === 'LIC_END'){
-              gridOptions.columns.push({
-                field: attrKey,
-                title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
-                width: 200,
-                format: "{0: dd.MM.yyyy}"
-              })
-            } else
-              gridOptions.columns.push({
-                field: attrKey,
-                title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
-                width: 200
-              })
-          }
-        })
+        if (gridOptions.columns.length === 0){
+          //console.log({"arrayOfObject":arrayOfObject});
+          angular.forEach(arrayOfObject[0], (attrVal, attrKey) => {
+            if (!~badAttrField.indexOf(attrKey)){
+              if (attrKey === 'LIC_BEGIN' || attrKey === 'LIC_END'){
+                gridOptions.columns.push({
+                  field: attrKey,
+                  title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
+                  width: 200,
+                  format: "{0: dd.MM.yyyy}"
+                })
+              } else
+              // if (attrKey === 'NSI_ID'){
+              //   gridOptions.columns.push({
+              //     field: 'NSI_ID',
+              //     title: ' ',
+              //     width: 50,
+              //     template: template
+              //   })
+              // } else
+                gridOptions.columns.push({
+                  field: attrKey,
+                  title: this.Geoserver.getAliasByAttrField(layerName, attrKey),
+                  width: 200
+                })
+            }
+          })
+        }
       }
 
       angular.forEach(arrayOfObject, object => {
